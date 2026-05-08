@@ -43,6 +43,6 @@ const report = departments
     .map((d: string) => `${d} - done`);
 
 const nums: number[][] = [
-    [3, 5,6],
+    [3, 5, 6],
     [3, 5, 6],
 ];
