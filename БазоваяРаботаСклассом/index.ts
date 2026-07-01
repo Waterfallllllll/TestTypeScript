@@ -19,7 +19,7 @@
 
 class Box {
     width: number; // Сначало мы должны указать какие свойства будут в этом классе, чтобы с ними как-то работать
-    height: number;
+    height: number = 500;
     volume: number | undefined;
     _content: string | undefined; // Используем возможности javascript class fields
 
@@ -27,7 +27,6 @@ class Box {
         this.width = width;
         this.volume = volume;
         this._content = content; 
-        this.height = 500;
     }
 
     calculateVolume(): void {
@@ -81,3 +80,15 @@ console.log(firstBox.content);
 // const ilya = new User();
 // ilya.name = "Ilya";
 // console.log(ilya);
+
+class Styles {
+    [s: string]: string | ((s: string) => boolean);
+
+    method() {
+        
+    }
+}
+
+const style = new Styles();
+style.color = "red";
+style.font = "Roboto";
