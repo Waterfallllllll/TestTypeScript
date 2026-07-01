@@ -63,15 +63,16 @@ class Box {
         this._content = `Date: ${date}, Content: ${value}`;
 
         //И дальше уже можем возвращать и делать че хотим.
+        // return this._content;
     }
 
     // Если убрать set, то свойство станет четко readonly
 }
 
-const firstBox = new Box(250);
-// firstBox.volume = 50000; // Напрямую вторглись в свойство объекта и изменили его
-console.log(firstBox.content = "Test");
-console.log(firstBox.content);
+// const firstBox = new Box(250);
+// // firstBox.volume = 50000; // Напрямую вторглись в свойство объекта и изменили его
+// console.log(firstBox.content = "Test");
+// console.log(firstBox.content);
 
 // class User {
 //     name: string;
@@ -81,14 +82,41 @@ console.log(firstBox.content);
 // ilya.name = "Ilya";
 // console.log(ilya);
 
-class Styles {
-    [s: string]: string | ((s: string) => boolean);
+// class Styles {
+//     [s: string]: string | ((s: string) => boolean);
 
-    method() {
+//     method() {
         
+//     }
+// }
+
+// const style = new Styles();
+// style.color = "red";
+// style.font = "Roboto";
+
+
+class PresentBox extends Box {
+    wrap: string;
+    height: number = 600; // Переназначили значение у родительского класса
+
+    constructor(wrap: string, width: number) {
+        super(width); //Super это вызов родительского конструктора. По сути это вызов всей конструкции constructor у родительского класса
+        this.wrap = wrap;
+    }
+
+    override async content(value: string, text?: string) {
+        const date = await new Date().toTimeString();
+
+        if (!text) {
+            super.content(value);
+        } else {
+            this._content = `Date: ${date}, Content: ${value}, Text: ${text ? text : "No text"}`;
+        }
+
+        console.log(this._content);
+        //И дальше уже можем возвращать и делать че хотим.
+        // return this._content; // Мы должны соблюдать правила родителя
     }
 }
 
-const style = new Styles();
-style.color = "red";
-style.font = "Roboto";
+new PresentBox("red", 500).content("TV", "Gift");
