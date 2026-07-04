@@ -1,5 +1,6 @@
 "use strict";
 class Player {
+    static game = "COD";
     #login; // public значение по умолчанию
     _password;
     server;
@@ -10,17 +11,21 @@ class Player {
     set password(newPass) {
         this._password = newPass;
     }
-}
-const test = new Player();
-// test.#login
-class CompetitivePlayer extends Player {
-    rank;
-    isConsented() {
-        this.consent ? "Yes" : "No";
+    static getGameName() {
+        return Player.game;
     }
 }
-const player = new Player();
-player.password = "1qaz";
+console.log(Player.getGameName());
+// const test = new Player();
+// // test.#login
+// class CompetitivePlayer extends Player {
+//     rank: number;
+//     private isConsented() {
+//         this.consent ? "Yes" : "No";
+//     }
+// }
+// const player = new Player();
+// player.password = "1qaz";
 // player.login = "asdfsd";
 // class User {
 //     public email: string;
