@@ -4,7 +4,9 @@ interface ICar {
     freeSeats: number;
 }
 
-@closeCar
+// Композиция декораторов. Декораторы работают по такому же принципу, что и композиция функций f(x()). Чем ниже записан декоратор в цепочке, тем он глубже
+@changeDoorStatus(true)
+@changeAmountOfFuel(95)
 class myCar implements ICar {
     fuel: string = "50%";
     open: boolean = true;
@@ -15,13 +17,31 @@ class myCar implements ICar {
     }
 }
 
-function closeCar<T extends {new (...args: any[]): {}}>(constructor: T) {
-    // constructor.prototype.open = false; // Мы используем prototype потому, что класс это по сути шаблон по которому будет настраиваться объект. Этих свойств и метода ещё по сути не сущетсвует. Они существуют только в прототипе. И только потом, когда мы создадим объект они появятся в объекте. Поэтому мы обращаемся к прототипу и изменяем его значение.
-
-    return class extends constructor {
-        open = false;
-    }
+function changeDoorStatus(status: boolean) { // Значение динамически меняется при помощи фабрики декораторов. Это функция которая принимает какие-то аргументы, после этого использует их внутри декоратора и возвращает этот декоратор который в свою очередь уже работает на классе.
+    console.log("door init");
+    return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+        console.log("door changed");
+        return class extends constructor {
+            open = status;
+        };
+    };
 }
+
+function changeAmountOfFuel(amount: number) {
+    console.log("fuel init");
+    return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+        console.log("fuel changed");
+        return class extends constructor {
+            fuel = `${amount}%`;
+        };
+    };
+}
+
+// function closeCar<T extends { new (...args: any[]): {} }>(constructor: T) {
+//     return class extends constructor {
+//         open = false;
+//     };
+// }
 
 const car = new myCar();
 console.log(car.isOpen());
@@ -31,5 +51,3 @@ console.log(car.isOpen());
 //     console.log("add fuel");
 //     return car;
 // }
-
-
