@@ -1,12 +1,9 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-let myCar = class myCar {
+// Композиция декораторов. Декораторы работают по такому же принципу, что и композиция функций f(x()). Чем ниже записан декоратор в цепочке, тем он глубже
+@changeDoorStatus(true)
+@changeAmountOfFuel(95)
+class myCar {
     fuel = "50%";
     open = true;
     freeSeats;
@@ -14,16 +11,48 @@ let myCar = class myCar {
         console.log(this.fuel);
         return this.open ? "open" : "close";
     }
-};
-myCar = __decorate([
-    closeCar
-], myCar);
-function closeCar(constructor) {
-    // constructor.prototype.open = false; // Мы используем prototype потому, что класс это по сути шаблон по которому будет настраиваться объект. Этих свойств и метода ещё по сути не сущетсвует. Они существуют только в прототипе. И только потом, когда мы создадим объект они появятся в объекте. Поэтому мы обращаемся к прототипу и изменяем его значение.
-    return class extends constructor {
-        open = false;
+}
+// function changeDoorStatus(status: boolean) { // Значение динамически меняется при помощи фабрики декораторов. Это функция которая принимает какие-то аргументы, после этого использует их внутри декоратора и возвращает этот декоратор который в свою очередь уже работает на классе.
+//     console.log("door init");
+//     return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+//         console.log("door changed");
+//         return class extends constructor {
+//             open = status;
+//         };
+//     };
+// }
+// function changeAmountOfFuel(amount: number) {
+//     console.log("fuel init");
+//     return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+//         console.log("fuel changed");
+//         return class extends constructor {
+//             fuel = `${amount}%`;
+//         };
+//     };
+// }
+function changeDoorStatus(status) {
+    console.log("door init");
+    return (target, context) => {
+        console.log("door changed");
+        return class extends target {
+            open = status;
+        };
     };
 }
+function changeAmountOfFuel(amount) {
+    console.log("fuel init");
+    return (target, context) => {
+        console.log("fuel changed");
+        return class extends target {
+            fuel = `${amount}%`;
+        };
+    };
+}
+// function closeCar<T extends { new (...args: any[]): {} }>(constructor: T) {
+//     return class extends constructor {
+//         open = false;
+//     };
+// }
 const car = new myCar();
 console.log(car.isOpen());
 // function addFuel(car: myCar) {
