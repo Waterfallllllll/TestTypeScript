@@ -1,5 +1,5 @@
 "use strict";
-// Синтаксис после пятой версии typeScript
+// Синтаксис до пятой версии typeScript
 var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
     var useValue = arguments.length > 2;
     for (var i = 0; i < initializers.length; i++) {
@@ -68,32 +68,19 @@ let myCar = (() => {
     })();
     return myCar = _classThis;
 })();
-// function checkAmountOfFuel(
-//     target: any, // Это метод к которому применяется декоратор
-//     context: ClassMethodDecoratorContext, // Это объект который содержит определённые характеристики того, к чему мы применяем этот декоратор
-// ) {
-//     return function (this: any, ...args: any[]) {
-//         console.log(this.fuel);
-//         return target.apply(this, args);
-//     };
-// }
-// В дженерике первый идентификатор отвечается за контекст
-// Второй за аргументы
-// Третий за возвращаемые значения
-function checkAmountOfFuel(target, // Это метод к которому применяется декоратор
-context) {
-    return function (...args) {
-        // console.log(this.fuel);
-        console.log(`${String(context.name)} был запущен`);
-        return target.apply(this, args);
+function checkAmountOfFuel(target, // Это объект к которому относится этот метод. К которому мы применим этот декоратор
+propertyKey, // Название этого метода который может быть либо строкой, либо символом. 
+descriptor) {
+    // descriptor.enumerable = false; // Теперь этот метод нельзя использовать в for in
+    const oldValue = descriptor.value;
+    descriptor.value = function (...args) {
+        console.log(this.fuel);
+        return oldValue.apply(this, args);
     };
 }
 function changeDoorStatus(status) {
-    // Значение динамически меняется при помощи фабрики декораторов. Это функция которая принимает какие-то аргументы, после этого использует их внутри декоратора и возвращает этот декоратор который в свою очередь уже работает на классе.
-    console.log("door init");
-    return (target, context) => {
-        console.log("door changed");
-        return class extends target {
+    return (constructor) => {
+        return class extends constructor {
             constructor() {
                 super(...arguments);
                 this.open = status;
@@ -102,10 +89,8 @@ function changeDoorStatus(status) {
     };
 }
 function changeAmountOfFuel(amount) {
-    console.log("fuel init");
-    return (target, context) => {
-        console.log("fuel changed");
-        return class extends target {
+    return (constructor) => {
+        return class extends constructor {
             constructor() {
                 super(...arguments);
                 this.fuel = `${amount}%`;
@@ -119,10 +104,10 @@ function changeAmountOfFuel(amount) {
 //     };
 // }
 const car = new myCar();
-console.log(car.isOpen("Checked"));
+console.log(car.isOpen("checked"));
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
 //     console.log("add fuel");
 //     return car;
 // }
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index1.js.map
