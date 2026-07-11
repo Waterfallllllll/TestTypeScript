@@ -41,7 +41,7 @@
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
         "skipLibCheck": true,
-        "experimentalDecorators": false
+        "experimentalDecorators": true
     },
     "files": ["index.ts"]
 }
