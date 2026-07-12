@@ -12,11 +12,27 @@ interface ICar {
 class myCar implements ICar {
     fuel: string = "50%";
     open: boolean = true;
-    freeSeats: number;
+    errors: any;
+
+    @checkNumberOfSeats(4)
+    freeSeats: number = 3;
 
     @checkAmountOfFuel
     isOpen(value: string) {
         return this.open ? "open" : `close ${value}`;
+    }
+}
+
+function checkNumberOfSeats(limit: number) {
+    return function (target: undefined, context: ClassFieldDecoratorContext) {
+        return function (this: any, newAmount: number) {
+            if (newAmount >= 1 && newAmount < limit) {
+                return newAmount;
+            } else {
+                throw Error(`Больше ${limit} сидений быть не может, меньше 1 тоже`);
+                // Валидация сработает только на этапе значений по умолчанию. Дальше уже не будет работать
+            }
+        }
     }
 }
 
@@ -79,7 +95,9 @@ function changeAmountOfFuel(amount: number) {
 // }
 
 const car = new myCar();
-console.log(car.isOpen("Checked"));
+car.freeSeats = -1;
+console.log(car);
+console.log(car.errors);
 
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";

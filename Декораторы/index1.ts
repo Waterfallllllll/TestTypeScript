@@ -12,11 +12,49 @@ interface ICar {
 class myCar implements ICar {
     fuel: string = "50%";
     open: boolean = true;
+    errors: any;
+
+    @checkNumberOfSeats(4)
+    // freeSeats: number = 5; // Декоратор сработает даже на этапе конструирования объекта
     freeSeats: number;
 
     @checkAmountOfFuel
     isOpen(value: string) {
         return this.open ? "open" : `close ${value}`;
+    }
+}
+
+function checkNumberOfSeats(limit: number) {
+    return function (target: Object, propertyKey: string | symbol) {
+        // let value: number;
+        let symbol = Symbol();
+
+        const getter = function (this: any) {
+            return this[symbol];
+        }
+
+        const setter = function (this: any, newAmount: number) {
+            if (newAmount >= 1 && newAmount < limit) {
+                this[symbol] = newAmount + 1;
+                // value = `value: ${newAmount}`;
+            } else {
+                // console.log(`Больше ${limit} сидений быть не может`);
+                Object.defineProperty(target, "errors", { // Object.defineProperty работает с прототипом. То есть оно привязывает это свойство с прототипом класса и оно будет доступно во всех экземплярах этого класса.
+                    value: `Больше ${limit} сидений быть не может`
+                })
+            }
+        }
+
+        // target на котором мы применяем этот метод
+        // propertyKey к свойству которому мы всё это применяем
+        // Объект с теми значениями которые мы заменяем
+        Object.defineProperty(target, propertyKey, {
+            get: getter,
+            set: setter
+            // get меняем на getter, set меняем на setter
+        });
+
+        // Взяли свойство к которому мы применили декоратор и изменили то, как оно себя ведёт при установке и получении значений
     }
 }
 
@@ -56,7 +94,9 @@ function changeAmountOfFuel(amount: number) {
 // }
 
 const car = new myCar();
-console.log(car.isOpen("checked"));
+car.freeSeats = 3;
+console.log(car);
+console.log(car.errors);
 
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
