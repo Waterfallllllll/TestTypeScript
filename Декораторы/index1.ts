@@ -13,6 +13,16 @@ class myCar implements ICar {
     fuel: string = "50%";
     open: boolean = true;
     errors: any;
+    _weight: number = 1000;
+
+
+    set weight(num: number) {
+        this._weight = this._weight + num;
+    }
+    @log // Мы можем применить декоратор к одной из сущностей get или set, так как результат будет такой же. К двум одновременно нельзя
+    get weight() {
+        return this._weight;
+    }
 
     @checkNumberOfSeats(4)
     // freeSeats: number = 5; // Декоратор сработает даже на этапе конструирования объекта
@@ -21,6 +31,24 @@ class myCar implements ICar {
     @checkAmountOfFuel
     isOpen(value: string) {
         return this.open ? "open" : `close ${value}`;
+    }
+}
+
+function log(
+    target: Object, // Это объект к которому относится этот метод. К которому мы применим этот декоратор
+    propertyKey: string | symbol, // Название этого метода который может быть либо строкой, либо символом. 
+    descriptor: PropertyDescriptor
+) : PropertyDescriptor | void {
+    // descriptor.enumerable = false; // Теперь этот метод нельзя использовать в for in
+    const oldValue = descriptor.set;
+    const oldGet = descriptor.get;
+    descriptor.set = function(this: any, ...args: any) {
+        console.log(`Изменяем значение на ${[...args]}`);
+        return oldValue?.apply(this, args);
+    }
+    descriptor.get = function() {
+        console.log(`Test`);
+        return oldGet?.apply(this);
     }
 }
 
@@ -94,9 +122,9 @@ function changeAmountOfFuel(amount: number) {
 // }
 
 const car = new myCar();
-car.freeSeats = 3;
-console.log(car);
-console.log(car.errors);
+car.weight = 3;
+console.log(car.weight);
+// console.log(car.errors);
 
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
