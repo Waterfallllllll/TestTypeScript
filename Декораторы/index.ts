@@ -13,6 +13,16 @@ class myCar implements ICar {
     fuel: string = "50%";
     open: boolean = true;
     errors: any;
+    _weight: number = 1000;
+    @logOnSet
+    set weight(num: number) {
+        this._weight = this._weight + num;
+    }
+     // Мы можем применить декоратор к одной из сущностей get или set, так как результат будет такой же. К двум одновременно нельзя
+    @logOnGet
+    get weight() {
+        return this._weight;
+    }
 
     @checkNumberOfSeats(4)
     freeSeats: number = 3;
@@ -22,6 +32,27 @@ class myCar implements ICar {
         return this.open ? "open" : `close ${value}`;
     }
 }
+
+function logOnSet<T, R>(
+    target: (this: T, value: number) => R, // По своей сути это и есть аннотация метода set в классе
+    context: ClassSetterDecoratorContext<T, number>
+){
+    return function(this: T, ...args: any): R {
+        console.log(`Изменяем значение на ${[...args]}`);
+        return target.apply(this, args); // target это метод к которому применяется декоратор
+    }
+}
+
+function logOnGet<T, R>(
+    target: (this: T) => R, // По своей сути это и есть аннотация метода set в классе
+    context: ClassGetterDecoratorContext<T, number>
+) {
+    return function(this: T): R {
+        console.log(`Test`);
+        return target.apply(this);
+    }
+}
+
 
 function checkNumberOfSeats(limit: number) {
     return function (target: undefined, context: ClassFieldDecoratorContext) {
@@ -95,9 +126,8 @@ function changeAmountOfFuel(amount: number) {
 // }
 
 const car = new myCar();
-car.freeSeats = -1;
-console.log(car);
-console.log(car.errors);
+car.weight = 3;
+console.log(car.weight);
 
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
