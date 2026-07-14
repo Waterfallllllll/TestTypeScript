@@ -1,73 +1,80 @@
 "use strict";
 // Синтаксис после пятой версии typeScript
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-};
-var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Композиция декораторов. Декораторы работают по такому же принципу, что и композиция функций f(x()). Чем ниже записан декоратор в цепочке, тем он глубже
-let myCar = (() => {
-    let _classDecorators = [changeDoorStatus(false), changeAmountOfFuel(95)];
-    let _classDescriptor;
-    let _classExtraInitializers = [];
-    let _classThis;
-    let _instanceExtraInitializers = [];
-    let _isOpen_decorators;
-    var myCar = _classThis = class {
-        constructor() {
-            this.fuel = (__runInitializers(this, _instanceExtraInitializers), "50%");
-            this.open = true;
-        }
-        isOpen(value) {
-            return this.open ? "open" : `close ${value}`;
-        }
+let myCar = class myCar {
+    constructor() {
+        this.fuel = "50%";
+        this.open = true;
+        this._weight = 1000;
+        this.freeSeats = 3;
+    }
+    set weight(num) {
+        this._weight = this._weight + num;
+    }
+    // Мы можем применить декоратор к одной из сущностей get или set, так как результат будет такой же. К двум одновременно нельзя
+    get weight() {
+        return this._weight;
+    }
+    isOpen(value) {
+        return this.open ? "open" : `close ${value}`;
+    }
+};
+__decorate([
+    logOnSet,
+    __metadata("design:type", Number),
+    __metadata("design:paramtypes", [Number])
+], myCar.prototype, "weight", null);
+__decorate([
+    checkNumberOfSeats(4),
+    __metadata("design:type", Number)
+], myCar.prototype, "freeSeats", void 0);
+__decorate([
+    checkAmountOfFuel,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], myCar.prototype, "isOpen", null);
+myCar = __decorate([
+    changeDoorStatus(false),
+    changeAmountOfFuel(95)
+], myCar);
+function logOnSet(target, // По своей сути это и есть аннотация метода set в классе
+context) {
+    return function (...args) {
+        console.log(`Изменяем значение на ${[...args]}`);
+        return target.apply(this, args); // target это метод к которому применяется декоратор
     };
-    __setFunctionName(_classThis, "myCar");
-    (() => {
-        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _isOpen_decorators = [checkAmountOfFuel];
-        __esDecorate(_classThis, null, _isOpen_decorators, { kind: "method", name: "isOpen", static: false, private: false, access: { has: obj => "isOpen" in obj, get: obj => obj.isOpen }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        myCar = _classThis = _classDescriptor.value;
-        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        __runInitializers(_classThis, _classExtraInitializers);
-    })();
-    return myCar = _classThis;
-})();
+}
+function logOnGet(target, // По своей сути это и есть аннотация метода set в классе
+context) {
+    return function () {
+        console.log(`Test`);
+        return target.apply(this);
+    };
+}
+function checkNumberOfSeats(limit) {
+    return function (target, context) {
+        return function (newAmount) {
+            if (newAmount >= 1 && newAmount < limit) {
+                return newAmount;
+            }
+            else {
+                throw Error(`Больше ${limit} сидений быть не может, меньше 1 тоже`);
+                // Валидация сработает только на этапе значений по умолчанию. Дальше уже не будет работать
+            }
+        };
+    };
+}
 // function checkAmountOfFuel(
 //     target: any, // Это метод к которому применяется декоратор
 //     context: ClassMethodDecoratorContext, // Это объект который содержит определённые характеристики того, к чему мы применяем этот декоратор
@@ -119,7 +126,8 @@ function changeAmountOfFuel(amount) {
 //     };
 // }
 const car = new myCar();
-console.log(car.isOpen("Checked"));
+car.weight = 3;
+console.log(car.weight);
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
 //     console.log("add fuel");

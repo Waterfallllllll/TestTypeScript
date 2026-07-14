@@ -41,7 +41,8 @@
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
         "skipLibCheck": true,
-        "experimentalDecorators": false
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
     "files": ["index.ts", "index1.ts"]
 }

@@ -1,73 +1,96 @@
 "use strict";
-// Синтаксис до пятой версии typeScript
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Синтаксис до пятой версии typeScript
+require("reflect-metadata");
 // Композиция декораторов. Декораторы работают по такому же принципу, что и композиция функций f(x()). Чем ниже записан декоратор в цепочке, тем он глубже
-let myCar = (() => {
-    let _classDecorators = [changeDoorStatus(false), changeAmountOfFuel(95)];
-    let _classDescriptor;
-    let _classExtraInitializers = [];
-    let _classThis;
-    let _instanceExtraInitializers = [];
-    let _isOpen_decorators;
-    var myCar = _classThis = class {
-        constructor() {
-            this.fuel = (__runInitializers(this, _instanceExtraInitializers), "50%");
-            this.open = true;
-        }
-        isOpen(value) {
-            return this.open ? "open" : `close ${value}`;
-        }
+let myCar = class myCar {
+    constructor() {
+        this.fuel = "50%";
+        this.open = true;
+        this._weight = 1000;
+    }
+    isOpen(value) {
+        return this.open ? "open" : `close ${value}`;
+    }
+    startTravel(passengers) {
+        console.log(`Started with ${passengers} passengers`);
+    }
+};
+__decorate([
+    checkNumberOfSeats(4)
+    // freeSeats: number = 5; // Декоратор сработает даже на этапе конструирования объекта
+    ,
+    __metadata("design:type", Number)
+], myCar.prototype, "freeSeats", void 0);
+__decorate([
+    checkAmountOfFuel,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], myCar.prototype, "isOpen", null);
+__decorate([
+    __param(0, limit),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], myCar.prototype, "startTravel", null);
+myCar = __decorate([
+    changeDoorStatus(false),
+    changeAmountOfFuel(95)
+], myCar);
+// Когда мы работали с методами или со свойствами propertyKey это было само свойство или метод
+// Когда мы применяем декоратор к параметру, propertyKey будет ссылаться на тот метод с которым мы работает
+// Названия параметров могут быть абсолютно любыми
+// parameterIndex показывает номер параметра по порядку
+// Обычно использует комбинацию декоратора метода + декоратора параметра для валидации параметров которые приходят в методы
+// Под валидацией имеется ввиду введение каких-то ограничений аргументу при передаче его функции
+function limit(target, propertyKey, parameterIndex) {
+    console.log(Reflect.getOwnMetadata("design:type", target, propertyKey)); // target - объект на котором работаем // propertyKey - свойство на котором работаем или же сам метод в котором есть этот параметр
+    console.log(Reflect.getOwnMetadata("design:paramtypes", target, propertyKey));
+    console.log(Reflect.getOwnMetadata("design:returntype", target, propertyKey));
+}
+function checkNumberOfSeats(limit) {
+    return function (target, propertyKey) {
+        // let value: number;
+        let symbol = Symbol();
+        const getter = function () {
+            return this[symbol];
+        };
+        const setter = function (newAmount) {
+            if (newAmount >= 1 && newAmount < limit) {
+                this[symbol] = newAmount + 1;
+                // value = `value: ${newAmount}`;
+            }
+            else {
+                // console.log(`Больше ${limit} сидений быть не может`);
+                Object.defineProperty(target, "errors", {
+                    value: `Больше ${limit} сидений быть не может`
+                });
+            }
+        };
+        // target на котором мы применяем этот метод
+        // propertyKey к свойству которому мы всё это применяем
+        // Объект с теми значениями которые мы заменяем
+        Object.defineProperty(target, propertyKey, {
+            get: getter,
+            set: setter
+            // get меняем на getter, set меняем на setter
+        });
+        // Взяли свойство к которому мы применили декоратор и изменили то, как оно себя ведёт при установке и получении значений
     };
-    __setFunctionName(_classThis, "myCar");
-    (() => {
-        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        _isOpen_decorators = [checkAmountOfFuel];
-        __esDecorate(_classThis, null, _isOpen_decorators, { kind: "method", name: "isOpen", static: false, private: false, access: { has: obj => "isOpen" in obj, get: obj => obj.isOpen }, metadata: _metadata }, null, _instanceExtraInitializers);
-        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        myCar = _classThis = _classDescriptor.value;
-        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        __runInitializers(_classThis, _classExtraInitializers);
-    })();
-    return myCar = _classThis;
-})();
+}
 function checkAmountOfFuel(target, // Это объект к которому относится этот метод. К которому мы применим этот декоратор
 propertyKey, // Название этого метода который может быть либо строкой, либо символом. 
 descriptor) {
@@ -104,7 +127,7 @@ function changeAmountOfFuel(amount) {
 //     };
 // }
 const car = new myCar();
-console.log(car.isOpen("checked"));
+// console.log(car.errors);
 // function addFuel(car: myCar) {
 //     car.fuel = "100%";
 //     console.log("add fuel");
