@@ -21,13 +21,13 @@ class myCar implements ICar {
     // freeSeats: number = 5; // Декоратор сработает даже на этапе конструирования объекта
     freeSeats: number;
 
-    @checkAmountOfFuel
+    @checkAmountOfFuel()
     isOpen(value: string) {
         return this.open ? "open" : `close ${value}`;
     }
 
-    @validate
-    startTravel(@limit passengers: number) {
+    @validate()
+    startTravel(@limit() passengers: number) {
         console.log(`Started with ${passengers} passengers`);
     }
 }
@@ -38,48 +38,62 @@ class myCar implements ICar {
 // parameterIndex показывает номер параметра по порядку
 // Обычно использует комбинацию декоратора метода + декоратора параметра для валидации параметров которые приходят в методы
 // Под валидацией имеется ввиду введение каких-то ограничений аргументу при передаче его функции
-function limit(
-    target: Object,
-    propertyKey: string | symbol,
-    parameterIndex: number,
-) {
-    // target - объект на котором работаем // propertyKey - свойство на котором работаем или же сам метод в котором есть этот параметр
-    let limitedParametrs: number[] =
-        Reflect.getOwnMetadata(limitMetadataKey, target, propertyKey) || []; // Эти метаданные о параметрах прикрепляем к самому методу с которым работаем
-    limitedParametrs.push(parameterIndex); // Параметр под определенным номером нуждается в обработке. Параметр 0 допустим, или параметр 2
-    Reflect.defineMetadata(
-        limitMetadataKey,
-        limitedParametrs,
-        target,
-        propertyKey,
-    ); // 1) Как-то обзываем эти метаданные 2) передаем данные которые необходимо записать 3) Объект в котором мы работаем 4) Свойства к которым мы прикрепляем эти метаданные
-    // После этого нужен декоратор метода потому что на самом методе уже есть метаданные которые уже можно использовать, чтобы валидировать те параметры которые у нас там будут
+function limit() {
+    console.log("Init: Parameter Decorator"); // Когда декоратор инициализируется
+    return (
+        target: Object,
+        propertyKey: string | symbol,
+        parameterIndex: number,
+    ) => {
+        console.log("Call: Parameter Decorator"); // Когда декоратор выполняется
+        // target - объект на котором работаем // propertyKey - свойство на котором работаем или же сам метод в котором есть этот параметр
+        let limitedParametrs: number[] =
+            Reflect.getOwnMetadata(limitMetadataKey, target, propertyKey) || []; // Эти метаданные о параметрах прикрепляем к самому методу с которым работаем
+        limitedParametrs.push(parameterIndex); // Параметр под определенным номером нуждается в обработке. Параметр 0 допустим, или параметр 2
+        Reflect.defineMetadata(
+            limitMetadataKey,
+            limitedParametrs,
+            target,
+            propertyKey,
+        ); // 1) Как-то обзываем эти метаданные 2) передаем данные которые необходимо записать 3) Объект в котором мы работаем 4) Свойства к которым мы прикрепляем эти метаданные
+        // После этого нужен декоратор метода потому что на самом методе уже есть метаданные которые уже можно использовать, чтобы валидировать те параметры которые у нас там будут
+        
+    };
 }
 
-function validate(
-    target: Object,
-    propertyKey: string | symbol,
-    descriptor: PropertyDescriptor,
-) {
-    let method = descriptor.value;
+function validate() {
+    console.log("Init: Method Decorator");
+    return (
+        target: Object,
+        propertyKey: string | symbol,
+        descriptor: PropertyDescriptor,
+    ) => {
+        console.log("Call: Method Decorator");
+        let method = descriptor.value;
 
-    descriptor.value = function (...args: any) {
-        let limitedParametrs: number[] =
-            Reflect.getOwnMetadata(limitMetadataKey, target, propertyKey); //Когда мы будем декорировать метод, мы получим вот этот вот массив с теми метаданными которые были записаны на этапе декорирования параметра
+        descriptor.value = function (...args: any) {
+            let limitedParametrs: number[] = Reflect.getOwnMetadata(
+                limitMetadataKey,
+                target,
+                propertyKey,
+            ); //Когда мы будем декорировать метод, мы получим вот этот вот массив с теми метаданными которые были записаны на этапе декорирования параметра
 
-        if (limitedParametrs) {
-            for (let index of limitedParametrs) {
-                if (args[index] > 4) {
-                    throw new Error("Нельзя больше 4-х пассажиров");
+            if (limitedParametrs) {
+                for (let index of limitedParametrs) {
+                    if (args[index] > 4) {
+                        throw new Error("Нельзя больше 4-х пассажиров");
+                    }
                 }
             }
-        }    
-        return method?.apply(this, args);
+            return method?.apply(this, args);
+        };
     };
 }
 
 function checkNumberOfSeats(limit: number) {
+    console.log("Init: Property Decorator");
     return function (target: Object, propertyKey: string | symbol) {
+        console.log("Call: Property Decorator");
         // let value: number;
         let symbol = Symbol();
 
@@ -113,22 +127,28 @@ function checkNumberOfSeats(limit: number) {
     };
 }
 
-function checkAmountOfFuel(
-    target: Object, // Это объект к которому относится этот метод. К которому мы применим этот декоратор
-    propertyKey: string | symbol, // Название этого метода который может быть либо строкой, либо символом.
-    descriptor: PropertyDescriptor,
-): PropertyDescriptor | void {
-    // descriptor.enumerable = false; // Теперь этот метод нельзя использовать в for in
-    const oldValue = descriptor.value;
-    descriptor.value = function (this: any, ...args: any[]) {
-        console.log(this.fuel);
-        return oldValue.apply(this, args);
+function checkAmountOfFuel() {
+    console.log("Init: Method Decorator");
+    return (
+        target: Object, // Это объект к которому относится этот метод. К которому мы применим этот декоратор
+        propertyKey: string | symbol, // Название этого метода который может быть либо строкой, либо символом.
+        descriptor: PropertyDescriptor,
+    ): PropertyDescriptor | void => {
+        console.log("Call: Method Decorator");
+        // descriptor.enumerable = false; // Теперь этот метод нельзя использовать в for in
+        const oldValue = descriptor.value;
+        descriptor.value = function (this: any, ...args: any[]) {
+            console.log(this.fuel);
+            return oldValue.apply(this, args);
+        };
     };
 }
 
 function changeDoorStatus(status: boolean) {
     // Значение динамически меняется при помощи фабрики декораторов. Это функция которая принимает какие-то аргументы, после этого использует их внутри декоратора и возвращает этот декоратор который в свою очередь уже работает на классе.
+    console.log("Init: Class Decorator Door");
     return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+        console.log("Call: Class Decorator Door");
         return class extends constructor {
             open = status;
         };
@@ -136,7 +156,9 @@ function changeDoorStatus(status: boolean) {
 }
 
 function changeAmountOfFuel(amount: number) {
+    console.log("Init: Class Decorator Fuel");
     return <T extends { new (...args: any[]): {} }>(constructor: T) => {
+        console.log("Call: Class Decorator Fuel");
         return class extends constructor {
             fuel = `${amount}%`;
         };
