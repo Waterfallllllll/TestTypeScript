@@ -12,13 +12,14 @@
         "types": [],
         // For nodejs:
         // "lib": ["esnext"],
-        // "types": ["node"],
+        // "types": ["node"],   
         // and npm install -D @types/node
 
         // Other Outputs
-        "sourceMap": true,
+        // "sourceMap": true,
         "declaration": true,
         "declarationMap": true,
+        "declarationDir": "./types",
 
         // Stricter Typechecking Options
         "noUncheckedIndexedAccess": true,
@@ -45,6 +46,10 @@
         "emitDecoratorMetadata": true,
         "allowJs": true,
         "checkJs": true,
+        "noEmitOnError": true,
+        "importHelpers": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
     },
     "include": ["index.ts", "test/**/*"],
     "exclude": ["test/test.ts"]
